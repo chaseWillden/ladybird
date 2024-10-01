@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta name="color-scheme" content="dark light">
     <title>Inspector</title>
 
-    <style type="text/css">@INSPECTOR_STYLE@</style>
+    <style type="text/css">
+        @INSPECTOR_STYLE@
+    </style>
     <link href="@INSPECTOR_CSS@" rel="stylesheet" />
 </head>
+
 <body>
     <div class="split-view">
         <div id="inspector-top" class="split-view-container" style="height: 60%">
@@ -15,13 +19,15 @@
 
                 <div class="tab-controls">
                     <button id="dom-tree-button" onclick="selectTopTab(this, 'dom-tree')">DOM Tree</button>
-                    <button id="accessibility-tree-button" onclick="selectTopTab(this, 'accessibility-tree')">Accessibility Tree</button>
+                    <button id="accessibility-tree-button"
+                        onclick="selectTopTab(this, 'accessibility-tree')">Accessibility Tree</button>
                     <button id="storage-button" onclick="selectTopTab(this, 'storage')">Storage</button>
                     <button id="style-sheets-button" onclick="selectTopTab(this, 'style-sheets')">Style Sheets</button>
                 </div>
 
                 <div class="global-controls">
-                    <button id="export-inspector-button" title="Export the Inspector to an HTML file" onclick="inspector.exportInspector()"></button>
+                    <button id="export-inspector-button" title="Export the Inspector to an HTML file"
+                        onclick="inspector.exportInspector()"></button>
                 </div>
             </div>
 
@@ -79,9 +85,13 @@
 
                 <div class="tab-controls">
                     <button id="console-button" onclick="selectBottomTab(this, 'console')">Console</button>
-                    <button id="computed-style-button" onclick="selectBottomTab(this, 'computed-style')">Computed Style</button>
-                    <button id="resolved-style-button" onclick="selectBottomTab(this, 'resolved-style')">Resolved Style</button>
-                    <button id="custom-properties-button" onclick="selectBottomTab(this, 'custom-properties')">Custom Properties</button>
+                    <button id="styles-button" onclick="selectBottomTab(this, 'styles')">Styles</button>
+                    <button id="computed-style-button" onclick="selectBottomTab(this, 'computed-style')">Computed
+                        Style</button>
+                    <button id="resolved-style-button" onclick="selectBottomTab(this, 'resolved-style')">Resolved
+                        Style</button>
+                    <button id="custom-properties-button" onclick="selectBottomTab(this, 'custom-properties')">Custom
+                        Properties</button>
                     <button id="font-button" onclick="selectBottomTab(this, 'fonts')">Fonts</button>
                 </div>
 
@@ -94,7 +104,8 @@
                     <div class="console-input">
                         <label for="console-input" class="console-prompt">&gt;&gt;</label>
                         <input id="console-input" type="text" placeholder="Enter statement to execute">
-                        <button id="console-clear" title="Clear the console output" onclick="inspector.clearConsoleOutput()">X</button>
+                        <button id="console-clear" title="Clear the console output"
+                            onclick="inspector.clearConsoleOutput()">X</button>
                     </div>
                 </div>
             </div>
@@ -111,4 +122,5 @@
 
     <script type="text/javascript" src="@INSPECTOR_JS@"></script>
 </body>
+
 </html>

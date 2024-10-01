@@ -41,6 +41,7 @@ public:
         String node_box_sizing_json;
         String aria_properties_state_json;
         String fonts_json;
+        String style_rules_json;
     };
 
     void set_url(Badge<WebContentClient>, URL::URL url) { m_url = move(url); }

@@ -463,7 +463,7 @@ void ConnectionFromClient::inspect_dom_node(u64 page_id, i32 node_id, Optional<W
     Web::DOM::Node* node = Web::DOM::Node::from_unique_id(node_id);
     // Note: Nodes without layout (aka non-visible nodes, don't have style computed)
     if (!node || !node->layout_node()) {
-        async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {});
+        async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {}, {});
         return;
     }
 
@@ -472,7 +472,7 @@ void ConnectionFromClient::inspect_dom_node(u64 page_id, i32 node_id, Optional<W
     if (node->is_element()) {
         auto& element = verify_cast<Web::DOM::Element>(*node);
         if (!element.computed_css_values()) {
-            async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {});
+            async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {}, {});
             return;
         }
 
@@ -573,10 +573,41 @@ void ConnectionFromClient::inspect_dom_node(u64 page_id, i32 node_id, Optional<W
             return builder.to_byte_string();
         };
 
+        auto serialize_style_rules_json = [](Vector<JS::NonnullGCPtr<Web::CSS::CSSStyleSheet>> const& sheets) -> ByteString {
+            StringBuilder builder;
+
+            auto serializer = MUST(JsonArraySerializer<>::try_create(builder));
+
+            for (auto& sheet : sheets) {
+                sheet->for_each_effective_style_rule([&](auto const& rule) {
+                    auto selector_text = rule.selector_text();
+                    auto selector_object = MUST(serializer.add_object());
+
+                    MUST(selector_object.add("_selector"sv, selector_text));
+
+                    for (auto property : rule.declaration().properties()) {
+                        auto property_value = property.value->to_string();
+                        auto is_important = property.important == Web::CSS::Important::Yes;
+                        auto property_id = Web::CSS::string_from_property_id(property.property_id);
+
+                        MUST(selector_object.add("name"sv, property_id));
+                        MUST(selector_object.add("value"sv, property_value));
+                        MUST(selector_object.add("important"sv, is_important ? "true"sv : "false"sv));
+                    }
+
+                    MUST(selector_object.finish());
+                });
+            }
+
+            MUST(serializer.finish());
+
+            return builder.to_byte_string();
+        };
+
         if (pseudo_element.has_value()) {
             auto pseudo_element_node = element.get_pseudo_element_node(pseudo_element.value());
             if (!pseudo_element_node) {
-                async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {});
+                async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {}, {});
                 return;
             }
 
@@ -586,8 +617,9 @@ void ConnectionFromClient::inspect_dom_node(u64 page_id, i32 node_id, Optional<W
             ByteString custom_properties_json = serialize_custom_properties_json(element, pseudo_element);
             ByteString node_box_sizing_json = serialize_node_box_sizing_json(pseudo_element_node.ptr());
             ByteString fonts_json = serialize_fonts_json(*pseudo_element_style);
+            ByteString style_rules_json = serialize_style_rules_json(element.document_or_shadow_root_style_sheets().sheets());
 
-            async_did_inspect_dom_node(page_id, true, move(computed_values), move(resolved_values), move(custom_properties_json), move(node_box_sizing_json), {}, move(fonts_json));
+            async_did_inspect_dom_node(page_id, true, move(computed_values), move(resolved_values), move(custom_properties_json), move(node_box_sizing_json), {}, move(fonts_json), move(style_rules_json));
             return;
         }
 
@@ -597,12 +629,13 @@ void ConnectionFromClient::inspect_dom_node(u64 page_id, i32 node_id, Optional<W
         ByteString node_box_sizing_json = serialize_node_box_sizing_json(element.layout_node());
         ByteString aria_properties_state_json = serialize_aria_properties_state_json(element);
         ByteString fonts_json = serialize_fonts_json(*element.computed_css_values());
+        ByteString style_rules_json = serialize_style_rules_json(element.document_or_shadow_root_style_sheets().sheets());
 
-        async_did_inspect_dom_node(page_id, true, move(computed_values), move(resolved_values), move(custom_properties_json), move(node_box_sizing_json), move(aria_properties_state_json), move(fonts_json));
+        async_did_inspect_dom_node(page_id, true, move(computed_values), move(resolved_values), move(custom_properties_json), move(node_box_sizing_json), move(aria_properties_state_json), move(fonts_json), move(style_rules_json));
         return;
     }
 
-    async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {});
+    async_did_inspect_dom_node(page_id, false, {}, {}, {}, {}, {}, {}, {});
 }
 
 void ConnectionFromClient::inspect_accessibility_tree(u64 page_id)

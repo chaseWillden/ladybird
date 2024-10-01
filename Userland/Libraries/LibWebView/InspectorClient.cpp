@@ -73,13 +73,15 @@ InspectorClient::InspectorClient(ViewImplementation& content_web_view, ViewImple
         StringBuilder builder;
 
         // FIXME: Support box model metrics and ARIA properties.
-        auto generate_property_script = [&](auto const& computed_style, auto const& resolved_style, auto const& custom_properties, auto const& fonts) {
+        auto generate_property_script = [&](auto const& computed_style, auto const& resolved_style, auto const& custom_properties, auto const& fonts, auto const& style_rules) {
             builder.append("inspector.createPropertyTables(\""sv);
             builder.append_escaped_for_json(computed_style);
             builder.append("\", \""sv);
             builder.append_escaped_for_json(resolved_style);
             builder.append("\", \""sv);
             builder.append_escaped_for_json(custom_properties);
+            builder.append("\", \""sv);
+            builder.append_escaped_for_json(style_rules);
             builder.append("\");"sv);
             builder.append("inspector.createFontList(\""sv);
             builder.append_escaped_for_json(fonts);
@@ -91,9 +93,10 @@ InspectorClient::InspectorClient(ViewImplementation& content_web_view, ViewImple
                 inspected_node_properties->computed_style_json,
                 inspected_node_properties->resolved_style_json,
                 inspected_node_properties->custom_properties_json,
-                inspected_node_properties->fonts_json);
+                inspected_node_properties->fonts_json,
+                inspected_node_properties->style_rules_json);
         } else {
-            generate_property_script("{}"sv, "{}"sv, "{}"sv, "{}"sv);
+            generate_property_script("{}"sv, "{}"sv, "{}"sv, "{}"sv, "{}"sv);
         }
 
         m_inspector_web_view.run_javascript(builder.string_view());

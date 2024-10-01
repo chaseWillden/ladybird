@@ -336,6 +336,10 @@ inspector.setStyleSheetSource = (identifier, sourceBase64) => {
     styleSheetSource.innerHTML = decodeBase64(sourceBase64);
 };
 
+inspector.createStyleRules = styleRules => {
+    // here
+};
+
 inspector.createPropertyTables = (computedStyle, resolvedStyle, customProperties) => {
     const createPropertyTable = (tableID, properties) => {
         let oldTable = document.getElementById(tableID);
